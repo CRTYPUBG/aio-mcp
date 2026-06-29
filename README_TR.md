@@ -1,29 +1,29 @@
-﻿# AIO MCP
+# AIO MCP
 
-One Platform. Every MCP.
+Tek Platform. Tum MCP.
 
 [![CI](https://github.com/CRTYPUBG/aio-mcp/actions/workflows/ci.yml/badge.svg)](https://github.com/CRTYPUBG/aio-mcp/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Rust](https://img.shields.io/badge/rust-stable-orange.svg)](https://www.rust-lang.org)
 
-Language:
-- English (default): README.md
-- Turkce: [README_TR.md](README_TR.md)
+Dil:
+- Turkce (varsayilan degil): README_TR.md
+- English (varsayilan): [README.md](README.md)
 
-## Overview
+## Proje Ozeti
 
-AIO MCP is a unified control plane and runtime for the Model Context Protocol ecosystem.
+AIO MCP, Model Context Protocol ekosistemi icin birlestirilmis bir kontrol ve calistirma platformudur.
 
-Core modules:
+Temel moduller:
 
 - Engine
 - Plugin Manager
 - Configuration Manager
 - Permission Manager
 - API Gateway
-- Railway-ready HTTP server
+- Railway uyumlu HTTP server
 
-## Architecture (ASCII)
+## Mimari (ASCII Cizim)
 
 ```text
 +---------------------------------------------------------+
@@ -43,19 +43,19 @@ Core modules:
 
 ## Railway Deployment
 
-AIO MCP runs as a pure HTTP API. A frontend is not required.
+AIO MCP saf HTTP API olarak calisir. Frontend zorunlu degildir.
 
-### 1) Environment variables
+### 1) Environment degiskenleri
 
-Add these in Railway Variables:
+Railway Variables alanina asagidaki degerleri ekleyin:
 
-| Variable | Example | Notes |
+| Variable | Ornek | Aciklama |
 |---|---|---|
-| `AIO_API_KEYS` | `sk-your-secret-key` | Separate multiple keys with commas |
-| `PORT` | auto | Provided by Railway |
-| `RUST_LOG` | `aio_server=info` | Optional |
+| `AIO_API_KEYS` | `sk-your-secret-key` | Birden fazla key icin virgul ile ayirin |
+| `PORT` | auto | Railway otomatik verir |
+| `RUST_LOG` | `aio_server=info` | Opsiyonel |
 
-Generate a strong key:
+Guclu key uretmek icin:
 
 ```bash
 openssl rand -hex 32
@@ -69,63 +69,54 @@ railway link
 railway up
 ```
 
-## API Reference
+## API Referansi
 
-All `/v1/*` endpoints require an API key.
+`/v1/*` endpointleri API key ister.
 
 Authentication:
 
 ```text
 X-Api-Key: sk-your-key
-# or
+# veya
 Authorization: Bearer sk-your-key
 ```
 
-Public endpoints:
+Public endpointler:
 
-| Method | Path | Description |
+| Method | Path | Aciklama |
 |---|---|---|
-| `GET` | `/` | Service info |
-| `GET` | `/health` | Health check |
+| `GET` | `/` | Servis bilgisi |
+| `GET` | `/health` | Saglik kontrolu |
 
-Protected endpoints:
+Korunan endpointler:
 
-| Method | Path | Description |
+| Method | Path | Aciklama |
 |---|---|---|
-| `GET` | `/v1/plugins` | List plugins |
-| `POST` | `/v1/plugins` | Register plugin |
-| `GET` | `/v1/config/:scope/:key` | Get config |
-| `PUT` | `/v1/config/:scope/:key` | Set config |
-| `POST` | `/v1/permissions/request` | Request permission |
-| `POST` | `/v1/permissions/grant` | Grant permission |
-| `GET` | `/v1/permissions/check` | Check permission |
-| `GET` | `/v1/services` | Core services |
-| `GET` | `/v1/routes` | Route table |
+| `GET` | `/v1/plugins` | Plugin listesi |
+| `POST` | `/v1/plugins` | Plugin kaydi |
+| `GET` | `/v1/config/:scope/:key` | Config oku |
+| `PUT` | `/v1/config/:scope/:key` | Config yaz |
+| `POST` | `/v1/permissions/request` | Izin talebi |
+| `POST` | `/v1/permissions/grant` | Izin onayi |
+| `GET` | `/v1/permissions/check` | Izin kontrolu |
+| `GET` | `/v1/services` | Core servisler |
+| `GET` | `/v1/routes` | Route tablosu |
 
-Example:
+## Lokal Gelistirme
 
-```bash
-curl -X POST https://your-app.up.railway.app/v1/plugins \
-  -H "X-Api-Key: sk-your-key" \
-  -H "Content-Type: application/json" \
-  -d '{"id":"official.github","version":"1.0.0"}'
-```
-
-## Local Development
-
-Requirements:
+Gereksinimler:
 
 - Rust stable
-- Node.js 22+ (optional, for TypeScript app shells)
+- Node.js 22+ (opsiyonel, TypeScript app shell icin)
 
-Run:
+Calistirma:
 
 ```bash
 git clone https://github.com/CRTYPUBG/aio-mcp.git
 cd aio-mcp
 
 cp .env.example .env
-# Set AIO_API_KEYS in .env
+# .env icinde AIO_API_KEYS ayarla
 
 cargo run --package aio-server
 ```
@@ -136,13 +127,13 @@ Test:
 cargo test --workspace
 ```
 
-Build (dist output):
+Build (dist cikisi):
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File scripts/build.ps1
 ```
 
-## Project Structure
+## Proje Yapisi
 
 ```text
 aio-mcp/
@@ -165,6 +156,6 @@ aio-mcp/
 \- railway.json
 ```
 
-## License
+## Lisans
 
-MIT - see [LICENSE](LICENSE).
+MIT - detaylar icin [LICENSE](LICENSE).
