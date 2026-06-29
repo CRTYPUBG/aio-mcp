@@ -1,4 +1,184 @@
-﻿<div align="center">
+# AIO MCP
+
+Tek Platform. Tum MCP.
+
+[![CI](https://github.com/CRTYPUBG/aio-mcp/actions/workflows/ci.yml/badge.svg)](https://github.com/CRTYPUBG/aio-mcp/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![Rust](https://img.shields.io/badge/rust-stable-orange.svg)](https://www.rust-lang.org)
+
+Bu README Turkce yazildi ve bilerek ASCII karakterlerle tutuldu.
+Boylece Windows terminal, GitHub ve farkli editor kodlamalarinda karakter bozulmasi yasanmaz.
+
+## Neden Karakterler Bozuldu?
+
+Sorunun nedeni genelde UTF-8 disinda kodlama ile kaydetme/goruntuleme farkidir.
+Ornek bozulma: emoji veya Turkce karakterler bazen anlamsiz sekilde gorunur.
+
+Bu repoda uygulanan cozum:
+
+1. README sade ASCII metne cevrildi.
+2. Emoji ve ozel kutu cizimleri kaldirildi.
+3. Terminaller arasi gorunum farkini azaltmak icin sade markdown kullanildi.
+
+## Proje Ozeti
+
+AIO MCP, Model Context Protocol ekosistemi icin birlestirilmis bir kontrol ve calistirma platformudur.
+
+Temel kabiliyetler:
+
+- Plugin yonetimi
+- API gateway
+- Yetki yonetimi
+- Konfigurasyon yonetimi
+- Railway uyumlu HTTP server
+
+## Mimari (ASCII Diyagram)
+
+```text
++---------------------------------------------------------+
+|                 Experience Layer                        |
+|  Desktop App (Tauri) | Web Dashboard | CLI             |
++---------------------------------------------------------+
+|                     API Layer                           |
+|                REST /v1/*  |  WebSocket                 |
++---------------------------------------------------------+
+|               Core Services (Rust)                      |
+| Engine | Plugin Manager | Config | Permission | Gateway |
++---------------------------------------------------------+
+|                     Data Layer                          |
+|                SQLite / PostgreSQL / Redis              |
++---------------------------------------------------------+
+```
+
+## Railway Deployment
+
+AIO MCP saf HTTP API olarak calisir. Frontend zorunlu degildir.
+
+### 1) Environment degiskenleri
+
+Railway Variables alanina asagidaki degerleri ekleyin:
+
+| Variable       | Ornek                | Aciklama                                |
+| -------------- | -------------------- | --------------------------------------- |
+| `AIO_API_KEYS` | `sk-your-secret-key` | Birden fazla key icin virgul ile ayirin |
+| `PORT`         | auto                 | Railway otomatik verir                  |
+| `RUST_LOG`     | `aio_server=info`    | Opsiyonel                               |
+
+Guclu key uretmek icin:
+
+```bash
+openssl rand -hex 32
+```
+
+### 2) Deploy
+
+```bash
+railway login
+railway link
+railway up
+```
+
+## API Referansi
+
+`/v1/*` endpointleri API key ister.
+
+Authentication:
+
+```text
+X-Api-Key: sk-your-key
+# veya
+Authorization: Bearer sk-your-key
+```
+
+Public endpointler:
+
+| Method | Path      | Aciklama        |
+| ------ | --------- | --------------- |
+| `GET`  | `/`       | Servis bilgisi  |
+| `GET`  | `/health` | Saglik kontrolu |
+
+Korunan endpointler:
+
+| Method | Path                      | Aciklama       |
+| ------ | ------------------------- | -------------- |
+| `GET`  | `/v1/plugins`             | Plugin listesi |
+| `POST` | `/v1/plugins`             | Plugin kaydi   |
+| `GET`  | `/v1/config/:scope/:key`  | Config oku     |
+| `PUT`  | `/v1/config/:scope/:key`  | Config yaz     |
+| `POST` | `/v1/permissions/request` | Izin talebi    |
+| `POST` | `/v1/permissions/grant`   | Izin onayi     |
+| `GET`  | `/v1/permissions/check`   | Izin kontrolu  |
+| `GET`  | `/v1/services`            | Core servisler |
+| `GET`  | `/v1/routes`              | Route tablosu  |
+
+Ornek:
+
+```bash
+curl -X POST https://your-app.up.railway.app/v1/plugins \
+  -H "X-Api-Key: sk-your-key" \
+  -H "Content-Type: application/json" \
+  -d '{"id":"official.github","version":"1.0.0"}'
+```
+
+## Lokal Gelistirme
+
+Gereksinimler:
+
+- Rust stable
+- Node.js 22+ (opsiyonel, TypeScript app shell icin)
+
+Calistirma:
+
+```bash
+git clone https://github.com/CRTYPUBG/aio-mcp.git
+cd aio-mcp
+
+cp .env.example .env
+# .env icinde AIO_API_KEYS ayarla
+
+cargo run --package aio-server
+```
+
+Test:
+
+```bash
+cargo test --workspace
+```
+
+Build (dist cikisi):
+
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts/build.ps1
+```
+
+## Proje Yapisi
+
+```text
+aio-mcp/
+|- server/
+|- core/
+|  |- engine/
+|  |- plugin-manager/
+|  |- configuration-manager/
+|  |- permission-manager/
+|  \- api-gateway/
+|- apps/
+|  |- desktop/
+|  |- web-dashboard/
+|  \- cli/
+|- docs/
+|- schemas/
+|- scripts/
+|- assets/
+|- Dockerfile
+\- railway.json
+```
+
+## Lisans
+
+MIT - detaylar icin [LICENSE](LICENSE).
+
+<div align="center">
 
 <!-- Theme-adaptive banner -->
 <picture>
@@ -39,274 +219,182 @@ AIO MCP is a unified control plane and runtime for the full [Model Context Proto
 
 Think of it as **Docker Desktop + VS Code Marketplace + npm** â€” built exclusively for MCP.
 
-| Capability | Description |
-|---|---|
-| ğŸ”Œ **Plugin Manager** | Install, update, rollback MCP servers with one click |
-| ğŸª **Marketplace** | Browse and publish MCP servers with ratings, reviews, and security scanning |
-| ğŸ“¦ **Registry** | Package index with signing, versioning, and delta updates |
-| ğŸ¤– **AI Provider Manager** | Route prompts across OpenAI, Anthropic, Gemini, Groq, Ollama, and more |
-| âš¡ **Workflow Engine** | Visual automation builder with MCP and AI nodes |
-| ğŸ” **Security** | Zero Trust, RBAC, secret vault, sandboxing, supply chain protection |
-| ğŸ“Š **Observability** | Logs, metrics, traces, health checks, alerts |
-| ğŸŒ **REST API** | Full HTTP API with API key auth â€” deploy anywhere |
-| ğŸ–¥ **Desktop App** | Cross-platform native interface (Windows, Linux, macOS) |
-| ğŸ“Ÿ **CLI** | Enterprise-grade `aio` command-line tool |
+# AIO MCP
 
----
+Tek Platform. Tum MCP.
 
-## Architecture
+[![CI](https://github.com/CRTYPUBG/aio-mcp/actions/workflows/ci.yml/badge.svg)](https://github.com/CRTYPUBG/aio-mcp/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![Rust](https://img.shields.io/badge/rust-stable-orange.svg)](https://www.rust-lang.org)
 
+Bu README Turkce yazildi ve bilerek ASCII karakterlerle tutuldu.
+Boylece Windows terminal, GitHub ve farkli editor kodlamalarinda karakter bozulmasi yasanmaz.
+
+## Neden Karakterler Bozuldu?
+
+Sorunun nedeni genelde UTF-8 disinda kodlama ile kaydetme/goruntuleme farkidir.
+Ornek bozulma: `🚀` gibi emoji veya Turkce karakterler bazen `ğŸš€` gibi gorunur.
+
+Bu repoda cozum olarak:
+
+1. README sade ASCII metne cevrildi.
+2. Emoji ve ozel kutu cizimleri kaldirildi.
+3. Terminaller arasi gorunum farkini azaltmak icin sade markdown kullanildi.
+
+## Proje Ozeti
+
+AIO MCP, Model Context Protocol ekosistemi icin birlestirilmis bir kontrol ve calistirma platformudur.
+
+Temel kabiliyetler:
+
+- Plugin yonetimi
+- API gateway
+- Yetki yonetimi
+- Konfigurasyon yonetimi
+- Railway uyumlu HTTP server
+
+## Mimari (ASCII Diyagram)
+
+```text
++---------------------------------------------------------+
+|                 Experience Layer                        |
+|  Desktop App (Tauri) | Web Dashboard | CLI             |
++---------------------------------------------------------+
+|                     API Layer                           |
+|                REST /v1/*  |  WebSocket                 |
++---------------------------------------------------------+
+|               Core Services (Rust)                      |
+| Engine | Plugin Manager | Config | Permission | Gateway |
++---------------------------------------------------------+
+|                     Data Layer                          |
+|                SQLite / PostgreSQL / Redis              |
++---------------------------------------------------------+
 ```
-â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
-â”‚                  Experience Layer                       â”‚
-â”‚   Desktop App (Tauri)  â”‚  Web Dashboard  â”‚  CLI (Rust)  â”‚
-â”œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¤
-â”‚                    API Layer                            â”‚
-â”‚        REST /v1/*     â”‚  GraphQL  â”‚  WebSocket          â”‚
-â”œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¤
-â”‚              Core Services (Rust + Tokio)               â”‚
-â”‚  Engine â”‚ Plugin Mgr â”‚ Config â”‚ Permissions â”‚ Gateway   â”‚
-â”œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¤
-â”‚                    Data Layer                           â”‚
-â”‚      SQLite / PostgreSQL    â”‚   Redis   â”‚    S3         â”‚
-â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
-```
-
-Core runtime â€” **Rust** (zero-cost, memory-safe, async).  
-UX surfaces â€” **TypeScript + React**.  
-Deployed as a single Docker container or a Rust binary.
-
----
 
 ## Railway Deployment
 
-AIO MCP is a pure HTTP API â€” no frontend bundle, runs straight on Railway.
+AIO MCP saf HTTP API olarak calisir. Frontend zorunlu degildir.
 
-### 1. One-click deploy
+### 1) Environment degiskenleri
 
-[![Deploy on Railway](https://railway.app/button.svg)](https://railway.app/new/template?template=https://github.com/CRTYPUBG/aio-mcp)
+Railway Variables alanina asagidaki degerleri ekleyin:
 
-### 2. Set environment variables
+| Variable       | Ornek                | Aciklama                                |
+| -------------- | -------------------- | --------------------------------------- |
+| `AIO_API_KEYS` | `sk-your-secret-key` | Birden fazla key icin virgul ile ayirin |
+| `PORT`         | auto                 | Railway otomatik verir                  |
+| `RUST_LOG`     | `aio_server=info`    | Opsiyonel                               |
 
-In the Railway dashboard â†’ **Variables**:
+Guclu key uretmek icin:
 
-| Variable | Value | Notes |
-|---|---|---|
-| `AIO_API_KEYS` | `sk-your-secret-key` | Comma-separate multiple keys |
-| `PORT` | *(auto)* | Railway sets this automatically |
-| `RUST_LOG` | `aio_server=info` | Optional |
-
-Generate a strong key:
 ```bash
 openssl rand -hex 32
 ```
 
-### 3. Deploy via CLI
+### 2) Deploy
 
 ```bash
 railway login
-railway link    # link to your Railway project
-railway up      # build with Dockerfile and deploy
+railway link
+railway up
 ```
 
----
+## API Referansi
 
-## API Reference
+`/v1/*` endpointleri API key ister.
 
-All `/v1/*` endpoints require authentication. Public endpoints do not.
+Authentication:
 
-### Authentication
-
-```
+```text
 X-Api-Key: sk-your-key
-# or
+# veya
 Authorization: Bearer sk-your-key
 ```
 
-### Public endpoints
+Public endpointler:
 
-| Method | Path | Description |
-|---|---|---|
-| `GET` | `/` | Service info |
-| `GET` | `/health` | Health check (used by Railway) |
+| Method | Path      | Aciklama        |
+| ------ | --------- | --------------- |
+| `GET`  | `/`       | Servis bilgisi  |
+| `GET`  | `/health` | Saglik kontrolu |
 
-### Plugins
+Korunan endpointler:
 
-| Method | Path | Description |
-|---|---|---|
-| `GET` | `/v1/plugins` | List registered plugins |
-| `POST` | `/v1/plugins` | Register a plugin |
+| Method | Path                      | Aciklama       |
+| ------ | ------------------------- | -------------- |
+| `GET`  | `/v1/plugins`             | Plugin listesi |
+| `POST` | `/v1/plugins`             | Plugin kaydi   |
+| `GET`  | `/v1/config/:scope/:key`  | Config oku     |
+| `PUT`  | `/v1/config/:scope/:key`  | Config yaz     |
+| `POST` | `/v1/permissions/request` | Izin talebi    |
+| `POST` | `/v1/permissions/grant`   | Izin onayi     |
+| `GET`  | `/v1/permissions/check`   | Izin kontrolu  |
+| `GET`  | `/v1/services`            | Core servisler |
+| `GET`  | `/v1/routes`              | Route tablosu  |
+
+Ornek:
 
 ```bash
 curl -X POST https://your-app.up.railway.app/v1/plugins \
   -H "X-Api-Key: sk-your-key" \
   -H "Content-Type: application/json" \
-  -d '{"id": "official.github", "version": "1.0.0"}'
+  -d '{"id":"official.github","version":"1.0.0"}'
 ```
 
-### Configuration
+## Lokal Gelistirme
 
-| Method | Path | Description |
-|---|---|---|
-| `GET` | `/v1/config/:scope/:key` | Get a config value |
-| `PUT` | `/v1/config/:scope/:key` | Set a config value (optimistic lock) |
+Gereksinimler:
 
-```bash
-curl -X PUT https://your-app.up.railway.app/v1/config/workspace/theme \
-  -H "X-Api-Key: sk-your-key" \
-  -H "Content-Type: application/json" \
-  -d '{"value": "dark", "expected_revision": 0}'
-```
+- Rust stable
+- Node.js 22+ (opsiyonel, TypeScript app shell icin)
 
-### Permissions
-
-| Method | Path | Description |
-|---|---|---|
-| `POST` | `/v1/permissions/request` | Request a permission grant |
-| `POST` | `/v1/permissions/grant` | Approve a permission request |
-| `GET` | `/v1/permissions/check` | Check if a principal has access |
-
-```bash
-# 1. Request
-curl -X POST https://your-app.up.railway.app/v1/permissions/request \
-  -H "X-Api-Key: sk-your-key" \
-  -d '{"principal_id": "user-1", "scope": "plugin.install"}'
-
-# 2. Grant
-curl -X POST https://your-app.up.railway.app/v1/permissions/grant \
-  -H "X-Api-Key: sk-your-key" \
-  -d '{"principal_id": "user-1", "scope": "plugin.install"}'
-
-# 3. Verify
-curl "https://your-app.up.railway.app/v1/permissions/check?principal_id=user-1&scope=plugin.install" \
-  -H "X-Api-Key: sk-your-key"
-```
-
-### Platform
-
-| Method | Path | Description |
-|---|---|---|
-| `GET` | `/v1/services` | Registered core services |
-| `GET` | `/v1/routes` | Gateway route table |
-
----
-
-## Local Development
-
-### Prerequisites
-
-- [Rust stable](https://rustup.rs)
-- Node.js 20+ *(optional â€” for TypeScript apps)*
-
-### Run the API server
+Calistirma:
 
 ```bash
 git clone https://github.com/CRTYPUBG/aio-mcp.git
 cd aio-mcp
 
-# Configure env
 cp .env.example .env
-# Edit .env â†’ set AIO_API_KEYS=sk-local-dev-key
+# .env icinde AIO_API_KEYS ayarla
 
-# Start server
 cargo run --package aio-server
-
-# Verify
-curl http://localhost:3000/health
-curl http://localhost:3000/v1/plugins -H "X-Api-Key: sk-local-dev-key"
 ```
 
-
-### Run tests
+Test:
 
 ```bash
 cargo test --workspace
 ```
 
-### Full build (to dist/)
+Build (dist cikisi):
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File scripts/build.ps1
 ```
 
----
+## Proje Yapisi
 
-## Project Structure
-
-```
+```text
 aio-mcp/
-├── server/                    # HTTP API server (Rust + axum)
-├── core/
-│   ├── engine/                # Service registry and event bus
-│   ├── plugin-manager/        # Plugin lifecycle
-│   ├── configuration-manager/ # Typed config with revision control
-│   ├── permission-manager/    # RBAC grant lifecycle
-│   └── api-gateway/           # Route table
-├── apps/
-│   ├── desktop/               # Desktop app shell (TypeScript)
-│   ├── web-dashboard/         # Web dashboard shell (TypeScript)
-│   └── cli/                   # CLI shell (TypeScript)
-├── schemas/manifests/         # Plugin manifest JSON Schema
-├── docs/architecture/         # Architecture docs and master prompt
-├── scripts/                   # build.ps1, verify.ps1
-├── assets/                    # Brand assets
-├── Dockerfile                 # Multi-stage Docker build
-└── railway.json               # Railway deployment config
+|- server/
+|- core/
+|  |- engine/
+|  |- plugin-manager/
+|  |- configuration-manager/
+|  |- permission-manager/
+|  \- api-gateway/
+|- apps/
+|  |- desktop/
+|  |- web-dashboard/
+|  \- cli/
+|- docs/
+|- schemas/
+|- scripts/
+|- assets/
+|- Dockerfile
+\- railway.json
 ```
 
----
+## Lisans
 
-## Roadmap
-
-| Phase | Focus | Status |
-|---|---|---|
-| 1 | Core engine, plugin manager, config, permissions, API server | ✅ Complete |
-| 2 | Domain events, manifest validator, transport manager | 🔄 In Progress |
-| 3 | MCP connection manager (stdio + HTTP transport) | 📋 Planned |
-| 4 | Marketplace search and install flow | 📋 Planned |
-| 5 | Registry publish pipeline with signing | 📋 Planned |
-| 6 | Workflow engine v1 (DAG, MCP + AI nodes) | 📋 Planned |
-| 7 | AI Provider Manager (routing + fallback) | 📋 Planned |
-| 8 | Desktop app core screens (Tauri + React) | 📋 Planned |
-| 9 | Web dashboard enterprise modules | 📋 Planned |
-| 10 | Security hardening and compliance | 📋 Planned |
-
----
-
-## Technology Stack
-
-| Layer | Technology |
-|---|---|
-| Core services | Rust, Tokio, Axum |
-| Desktop app | Tauri, React, TypeScript |
-| Web dashboard | React, TypeScript |
-| CLI | Rust, Clap |
-| Database | SQLite (local), PostgreSQL (cloud) |
-| Cache | Redis |
-| Observability | OpenTelemetry, Prometheus, Grafana |
-| Deployment | Docker, Railway, Kubernetes |
-
----
-
-## Contributing
-
-Contributions are welcome. Please open an issue first to discuss major changes.
-
-1. Fork the repository
-2. Create a feature branch: `git checkout -b feat/my-feature`
-3. Run tests: `cargo test --workspace`
-4. Open a pull request
-
----
-
-## License
-
-MIT — see [LICENSE](LICENSE) for details.
-
----
-
-<div align="center">
-<img src="assets/mn-icon.png" alt="AIO MCP" width="48">
-<br/>
-<sub>Built with ❤️ for the MCP ecosystem</sub>
-</div>
+MIT - detaylar icin [LICENSE](LICENSE).
