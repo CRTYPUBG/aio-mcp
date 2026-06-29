@@ -1,0 +1,11 @@
+{
+  "name": "@aio/desktop",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "dev": "node src/main.ts",
+    "typecheck": "tsc --noEmit -p tsconfig.json"
+  }
+}

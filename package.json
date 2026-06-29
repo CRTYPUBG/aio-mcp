@@ -1,0 +1,20 @@
+{
+  "name": "aio-mcp",
+  "private": true,
+  "version": "0.1.0",
+  "workspaces": [
+    "apps/*"
+  ],
+  "scripts": {
+    "build": "npm run -ws build",
+    "build:all": "powershell -ExecutionPolicy Bypass -File scripts/build.ps1",
+    "test:all": "powershell -ExecutionPolicy Bypass -File scripts/build.ps1 -SkipNodeInstall",
+    "typecheck": "npm run -ws typecheck",
+    "dev:web": "npm run -w @aio/web-dashboard dev",
+    "dev:desktop": "npm run -w @aio/desktop dev",
+    "dev:cli": "npm run -w @aio/cli dev"
+  },
+  "devDependencies": {
+    "typescript": "^5.6.3"
+  }
+}
